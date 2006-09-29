@@ -1,0 +1,58 @@
+<project name="snowbird" default="all">
+
+   <target name="all" depends="clean, compile, jar"/>
+
+   <property name="build.java" value="classes"/>
+   <property name="build.test" value="testclasses"/>
+
+   <property name="src.java" value="src/java"/>
+   <property name="src.test" value="src/test"/>
+
+   <property name="distribution" value="dist"/>
+
+   <property name="lib.java" value="lib"/>
+   <property name="lib.test" value="testlib"/>
+
+
+   <path id="classpath.build">
+      <pathelement path="${build.java}"/>
+      <fileset dir="${lib.java}" includes="*.jar"/>
+   </path>
+
+   <path id="classpath.test">
+      <fileset dir="${lib.java}" includes="*.jar"/>
+      <fileset dir="${lib.test}" includes="*.jar"/>
+      <pathelement path="${build.java}"/>
+      <pathelement path="${build.test}"/>
+
+   </path>
+
+   <target name="compile" description="Compile Java">
+      <mkdir dir="${build.java}"/>
+      <javac srcdir="${src.java}" destdir="${build.java}" classpathref="classpath.build" debug="true"/>
+      <copy todir="${build.java}">
+         <fileset dir="${src.java}">
+            <exclude name="**/*.java"/>
+         </fileset>
+      </copy>
+
+      <mkdir dir="${build.test}"/>
+      <javac srcdir="${src.test}" destdir="${build.test}" classpathref="classpath.test"
+             classpath="${build.java}" debug="true"/>
+      <copy todir="${build.test}">
+         <fileset dir="${src.test}">
+            <exclude name="**/*.java"/>
+         </fileset>
+      </copy>
+   </target>
+
+   <target name="clean">
+      <delete dir="build.java"/>
+      <delete dir="build.test"/>
+   </target>
+   <target name="jar" depends="compile">
+      <delete dir="${distribution}"/>
+      <mkdir dir="${distribution}"/>
+      <jar basedir="${build.java}" destfile="${distribution}/snowbird.jar"/>
+   </target>
+</project>
