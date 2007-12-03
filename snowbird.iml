@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module version="4" relativePaths="true" type="JAVA_MODULE">
   <component name="ModuleRootManager" />
-  <component name="NewModuleRootManager">
+  <component name="NewModuleRootManager" inherit-compiler-output="false">
     <output url="file://$MODULE_DIR$/classes" />
     <exclude-output />
     <exclude-exploded />
@@ -37,11 +37,11 @@
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="file://C:/lib/apache-ant-1.6.2/src/script" />
-          <root url="file://C:/lib/apache-ant-1.6.2/src/testcases" />
-          <root url="file://C:/lib/apache-ant-1.6.2/src/main" />
-          <root url="file://C:/lib/apache-ant-1.6.2/src/etc" />
-          <root url="file://C:/lib/apache-ant-1.6.2/src/antidote" />
+          <root url="file://$MODULE_DIR$/../../lib/apache-ant-1.6.2/src/script" />
+          <root url="file://$MODULE_DIR$/../../lib/apache-ant-1.6.2/src/testcases" />
+          <root url="file://$MODULE_DIR$/../../lib/apache-ant-1.6.2/src/main" />
+          <root url="file://$MODULE_DIR$/../../lib/apache-ant-1.6.2/src/etc" />
+          <root url="file://$MODULE_DIR$/../../lib/apache-ant-1.6.2/src/antidote" />
         </SOURCES>
       </library>
     </orderEntry>

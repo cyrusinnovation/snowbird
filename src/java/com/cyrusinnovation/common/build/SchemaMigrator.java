@@ -38,7 +38,9 @@ public class SchemaMigrator {
          String scriptFolderName = args[2];
          String username = args[3];
          String password = "";
-         if (args.length == 5) password = args[4];
+         String schema = null;
+         if (args.length >= 5) password = args[4];
+         if (args.length == 6) schema = args[5];
 
          connection = DriverManager.getConnection(url, username, password);
 
@@ -53,7 +55,7 @@ public class SchemaMigrator {
 
 
 
-         SchemaMigrator migrator = new SchemaMigrator(new SchemaUpdaterImpl(stmt, task), new SchemaScriptManagerImpl(new File(scriptFolderName)));
+         SchemaMigrator migrator = new SchemaMigrator(new SchemaUpdaterImpl(stmt, task, schema), new SchemaScriptManagerImpl(new File(scriptFolderName)));
          migrator.applyChanges();
          if (migrator.hasChanges()) task.execute();
       } catch (Exception e) {
