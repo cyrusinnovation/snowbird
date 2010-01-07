@@ -1,11 +1,8 @@
 package com.cyrusinnovation.common.build;
 
-import org.apache.tools.ant.taskdefs.*;
-import org.apache.tools.ant.*;
-
-import java.sql.*;
-import java.util.*;
-import java.io.*;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.List;
 
 /**
  * User: rex
@@ -13,93 +10,48 @@ import java.io.*;
  * Time: 1:21:20 PM
  */
 public class SchemaMigrator {
-   private SchemaUpdater schemaUpdater;
-   private SchemaScriptManager scriptManager;
-   private boolean hasChanges;
+    private AntSqlExecer task;
+    private SchemaUpdater schemaUpdater;
+    private SchemaScriptManager scriptManager;
+    private boolean hasChanges;
 
-   public SchemaMigrator(SchemaUpdater schemaUpdater, SchemaScriptManager scriptManager) {
-      this.schemaUpdater = schemaUpdater;
-      this.scriptManager = scriptManager;
+    protected SchemaMigrator(AntSqlExecer task, SchemaUpdater schemaUpdater, SchemaScriptManager scriptManager) {
+        this.task = task;
+        this.schemaUpdater = schemaUpdater;
+        this.scriptManager = scriptManager;
+    }
 
-   }
+    @Deprecated
+    public static void main(String args[]) {
+        // For backwards compatibility with old builds.  
+        Main.main(args);
+    }
 
-   public static void main(String args[]) {
+    public void run() throws SQLException, IOException {
+        applyChanges();
+        if (hasChanges()) task.execute();
+    }
 
-      try {
-         Connection connection = null;
-
-
-         // Load the JDBC driver
-         String driverName = args[0]; // MySQL MM JDBC driver
-         Class.forName(driverName);
-
-         // Create a connection to the database
-         String url = args[1]; // a JDBC url
-         String scriptFolderName = args[2];
-         String username = args[3];
-         String password = "";
-         String schema = null;
-         if (args.length >= 5) password = args[4];
-         if (args.length == 6) schema = args[5];
-
-         connection = DriverManager.getConnection(url, username, password);
-
-         Statement stmt = connection.createStatement();
+    public boolean hasChanges() {
+        return hasChanges;
+    }
 
 
-         SQLExecer task = new SQLExecer();
-         task.setDriver(driverName);
-         task.setUrl(url);
-         task.setUserid(username);
-         task.setPassword(password);
+    public void applyChanges() throws SQLException, IOException {
+        List scriptsToExecute = scriptManager.scriptsWithVersionAbove(schemaUpdater.currentVersion());
+        if (scriptsToExecute.isEmpty()) {
+            hasChanges = false;
+            return;
+        }
+
+        hasChanges = true;
+
+        SchemaUpdateScript lastScript;
+        for (Object aScriptsToExecute : scriptsToExecute) {
+            lastScript = (SchemaUpdateScript) aScriptsToExecute;
+            schemaUpdater.runScript(lastScript);
+        }
 
 
-
-         SchemaMigrator migrator = new SchemaMigrator(new SchemaUpdaterImpl(stmt, task, schema), new SchemaScriptManagerImpl(new File(scriptFolderName)));
-         migrator.applyChanges();
-         if (migrator.hasChanges()) task.execute();
-      } catch (Exception e) {
-         e.printStackTrace();
-         System.exit(1);
-      }
-   }
-
-   public boolean hasChanges() {
-      return hasChanges;
-   }
-
-
-   static final class SQLExecer extends SQLExec {
-      public SQLExecer() {
-         Project project = new Project();
-         setProject(project);
-         project.init();
-         setTaskType("sql");
-         setTaskName("sql");
-         setOwningTarget(new Target());
-
-      }
-   }
-
-
-
-   public void applyChanges() throws SQLException, IOException {
-
-
-      List scriptsToExecute = scriptManager.scriptsWithVersionAbove(schemaUpdater.currentVersion());
-      if (scriptsToExecute.isEmpty()) {
-         hasChanges = false;
-         return;
-      }
-
-      hasChanges = true;
-
-      SchemaUpdateScript lastScript = null;
-      for (Iterator i = scriptsToExecute.iterator(); i.hasNext();) {
-         lastScript = (SchemaUpdateScript) i.next();
-         schemaUpdater.runScript(lastScript);
-      }
-
-
-   }
+    }
 }

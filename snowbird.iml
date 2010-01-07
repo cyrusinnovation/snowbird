@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module version="4" relativePaths="true" type="JAVA_MODULE">
-  <component name="ModuleRootManager" />
+<module relativePaths="true" type="JAVA_MODULE" version="4">
   <component name="NewModuleRootManager" inherit-compiler-output="false">
     <output url="file://$MODULE_DIR$/classes" />
+    <output-test url="file://$MODULE_DIR$/testclasses" />
     <exclude-output />
     <exclude-exploded />
-    <output-test url="file://$MODULE_DIR$/testclasses" />
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/src/java" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/test" isTestSource="true" />
@@ -37,15 +36,14 @@
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="file://$MODULE_DIR$/../../lib/apache-ant-1.6.2/src/script" />
-          <root url="file://$MODULE_DIR$/../../lib/apache-ant-1.6.2/src/testcases" />
-          <root url="file://$MODULE_DIR$/../../lib/apache-ant-1.6.2/src/main" />
-          <root url="file://$MODULE_DIR$/../../lib/apache-ant-1.6.2/src/etc" />
-          <root url="file://$MODULE_DIR$/../../lib/apache-ant-1.6.2/src/antidote" />
+          <root url="file://C:/lib/apache-ant-1.6.2/src/script" />
+          <root url="file://C:/lib/apache-ant-1.6.2/src/testcases" />
+          <root url="file://C:/lib/apache-ant-1.6.2/src/main" />
+          <root url="file://C:/lib/apache-ant-1.6.2/src/etc" />
+          <root url="file://C:/lib/apache-ant-1.6.2/src/antidote" />
         </SOURCES>
       </library>
     </orderEntry>
-    <orderEntryProperties />
   </component>
 </module>
 

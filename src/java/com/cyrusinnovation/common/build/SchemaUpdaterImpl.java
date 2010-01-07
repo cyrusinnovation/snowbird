@@ -1,7 +1,5 @@
 package com.cyrusinnovation.common.build;
 
-import org.apache.tools.ant.taskdefs.SQLExec;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -13,10 +11,10 @@ import java.sql.Statement;
  */
 public class SchemaUpdaterImpl implements SchemaUpdater {
     private Statement stmt;
-    private SQLExec task;
+    private AntSqlExecer task;
     private String schema;
 
-    public SchemaUpdaterImpl(Statement stmt, SQLExec task, String schema) {
+    public SchemaUpdaterImpl(Statement stmt, AntSqlExecer task, String schema) {
         this.stmt = stmt;
         this.task = task;
         this.schema = schema;
