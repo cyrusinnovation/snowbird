@@ -7,11 +7,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class SchemaMigratorFactory {
-
     public SchemaMigrator createMigrator(String[] args) throws ClassNotFoundException, SQLException {
-
         // Load the JDBC driver
-        String driverName = args[0]; // MySQL MM JDBC driver
+        String driverName = args[0];
         Class.forName(driverName);
 
         // Create a connection to the database
@@ -24,17 +22,16 @@ public class SchemaMigratorFactory {
         if (args.length == 6) schema = args[5];
 
         Connection connection = DriverManager.getConnection(url, username, password);
+        Statement statement = connection.createStatement();
 
-        Statement stmt = connection.createStatement();
+        AntSqlExecerImpl antSqlTask = new AntSqlExecerImpl();
+        antSqlTask.setDriver(driverName);
+        antSqlTask.setUrl(url);
+        antSqlTask.setUserid(username);
+        antSqlTask.setPassword(password);
 
-        AntSqlExecerImpl task = new AntSqlExecerImpl();
-        task.setDriver(driverName);
-        task.setUrl(url);
-        task.setUserid(username);
-        task.setPassword(password);
-
-
-        return new SchemaMigrator(task, new SchemaUpdaterImpl(stmt, task, schema), new SchemaScriptManagerImpl(new File(scriptFolderName)));
+        return new SchemaMigrator(antSqlTask, 
+              new SchemaUpdaterImpl(statement, antSqlTask, schema),
+              new SchemaScriptManagerImpl(new File(scriptFolderName)));
     }
-
 }

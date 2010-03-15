@@ -1,31 +1,24 @@
 package com.cyrusinnovation.common.build;
 
+import junit.framework.TestCase;
 
-import java.util.*;
 import java.io.*;
-
-import org.jmock.*;
+import java.util.*;
 
 /**
  * User: rex
  * Date: Feb 8, 2005
  * Time: 4:49:34 PM
  */
-public class SchemaScriptManagerImplTest extends MockObjectTestCase {
-   private static final String TEST_SCRIPT_FOLDER_NAME = "./testscripts";
+public class SchemaScriptManagerImplTest extends TestCase {
+   private static final String TEST_SCRIPT_FOLDER_NAME = "testscripts";
 
-
-   public void testFindsAllOfTheScriptsFromTheScriptDirectoryWithFileNamesGreaterThanTheVersionPassed()
-         throws IOException {
-
-
-      File scriptFolder = new File(SchemaScriptManagerImplTest.class.getResource(TEST_SCRIPT_FOLDER_NAME).getFile());
-      System.out.println(scriptFolder.getAbsolutePath());
+   public void testFindsAllOfTheScriptsFromTheScriptDirectoryWithFileNamesGreaterThanTheVersionPassed() throws IOException {
+      File scriptFolder = new File(TEST_SCRIPT_FOLDER_NAME);
       SchemaScriptManagerImpl scriptManager = new SchemaScriptManagerImpl(scriptFolder);
-      List<SchemaUpdateScript> updateScripts = scriptsMatching(scriptFolder, Arrays.asList("6.sql", "8.sql"));
-      assertEquals(updateScripts, scriptManager.scriptsWithVersionAbove(5));
 
-
+      List<SchemaUpdateScript> expectedScripts = scriptsMatching(scriptFolder, Arrays.asList("6.sql", "8.sql"));
+      assertEquals(expectedScripts, scriptManager.scriptsWithVersionAbove(5));
    }
 
    private List<SchemaUpdateScript> scriptsMatching(File scriptFolder, final List<String> filenames) {

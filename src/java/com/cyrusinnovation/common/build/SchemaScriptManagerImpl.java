@@ -15,7 +15,7 @@ public class SchemaScriptManagerImpl implements SchemaScriptManager {
       this.scriptFolder = scriptFolderName;
    }
 
-   public List scriptsWithVersionAbove(int currentVersion) throws IOException {
+   public List<SchemaUpdateScript> scriptsWithVersionAbove(int currentVersion) throws IOException {
       File[] files = findAllSqlFiles();
 
       List<SchemaUpdateScript> allScripts = convertFilesToScriptObjects(files);
@@ -37,10 +37,8 @@ public class SchemaScriptManagerImpl implements SchemaScriptManager {
    private List<SchemaUpdateScript> convertFilesToScriptObjects(File[] files) {
       List<SchemaUpdateScript> retVal = new ArrayList<SchemaUpdateScript>();
 
-      for (int i = 0; i < files.length; i++) {
-
-         SchemaUpdateScript script = new SchemaUpdateScript(
-               files[i]);
+      for (File file : files) {
+         SchemaUpdateScript script = new SchemaUpdateScript(file);
          retVal.add(script);
       }
 

@@ -7,7 +7,7 @@ import java.io.*;
  * Date: Feb 8, 2005
  * Time: 1:30:46 PM
  */
-public class SchemaUpdateScript implements Comparable{
+public class SchemaUpdateScript implements Comparable {
    private int version;
    private File srcFile;
 
@@ -18,7 +18,6 @@ public class SchemaUpdateScript implements Comparable{
 
    public int version(){
       return version;
-
    }
 
    public boolean equals(Object o) {
@@ -27,9 +26,7 @@ public class SchemaUpdateScript implements Comparable{
 
       final SchemaUpdateScript that = (SchemaUpdateScript) o;
 
-      if (srcFile != null ? !srcFile.equals(that.srcFile) : that.srcFile != null) return false;
-
-      return true;
+      return !(srcFile != null ? !srcFile.equals(that.srcFile) : that.srcFile != null);
    }
 
    public int hashCode() {
@@ -37,17 +34,14 @@ public class SchemaUpdateScript implements Comparable{
    }
 
    public int compareTo(Object o) {
-      return (new Integer(version)).compareTo(new Integer(((SchemaUpdateScript) o).version));
+      return (new Integer(version)).compareTo(((SchemaUpdateScript) o).version);
    }
 
    public String toString(){
-
       return "File: "+srcFile.toString();
    }
-
 
    public File getSrcFile() {
       return srcFile;
    }
-
 }

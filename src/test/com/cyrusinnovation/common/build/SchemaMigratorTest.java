@@ -19,7 +19,19 @@ public class SchemaMigratorTest extends MockObjectTestCase {
     private Mock schemaScriptManager;
     private SchemaMigrator migrator;
 
-    public void testAppliesEachSchemaScriptThatIsBeyondTheCurrentSchemaVersionAndUpdatesToTheNewVersion()
+   @Override
+   protected void setUp() throws Exception {
+      super.setUp();
+      schemaUpdater = mock(SchemaUpdater.class);
+      schemaScriptManager = mock(SchemaScriptManager.class);
+      Mock sqlExecer = mock(AntSqlExecer.class);
+      migrator = new SchemaMigrator(
+            (AntSqlExecer) sqlExecer.proxy(),
+            (SchemaUpdater) schemaUpdater.proxy(),
+            (SchemaScriptManager) schemaScriptManager.proxy());
+   }
+
+   public void testAppliesEachSchemaScriptThatIsBeyondTheCurrentSchemaVersionAndUpdatesToTheNewVersion()
             throws SQLException, IOException {
 
         schemaUpdater.stubs().method("currentVersion").will(returnValue(17));
@@ -35,12 +47,9 @@ public class SchemaMigratorTest extends MockObjectTestCase {
 
         migrator.applyChanges();
         assertTrue(migrator.hasChanges());
-
-
     }
 
-    public void testDoesNothingIfThereAreNoNewScriptsFound() throws SQLException, IOException {
-
+   public void testDoesNothingIfThereAreNoNewScriptsFound() throws SQLException, IOException {
         schemaUpdater.stubs().method("currentVersion").will(returnValue(17));
 
         schemaScriptManager.stubs().method("scriptsWithVersionAbove").with(eq(17)).will(
@@ -48,17 +57,5 @@ public class SchemaMigratorTest extends MockObjectTestCase {
 
         migrator.applyChanges();
         assertFalse(migrator.hasChanges());
-
-    }
-
-
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-        schemaUpdater = mock(SchemaUpdater.class);
-        schemaScriptManager = mock(SchemaScriptManager.class);
-        Mock sqlExecer = mock(AntSqlExecer.class);
-        migrator = new SchemaMigrator((AntSqlExecer) sqlExecer.proxy(), (SchemaUpdater) schemaUpdater.proxy(),
-                (SchemaScriptManager) schemaScriptManager.proxy());
     }
 }

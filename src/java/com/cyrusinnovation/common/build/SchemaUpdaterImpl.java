@@ -10,29 +10,29 @@ import java.sql.Statement;
  * Time: 3:04:31 PM
  */
 public class SchemaUpdaterImpl implements SchemaUpdater {
-    private Statement stmt;
+    private Statement statement;
     private AntSqlExecer task;
     private String schema;
 
-    public SchemaUpdaterImpl(Statement stmt, AntSqlExecer task, String schema) {
-        this.stmt = stmt;
+   public SchemaUpdaterImpl(Statement statement, AntSqlExecer task, String schema) {
+        this.statement = statement;
         this.task = task;
         this.schema = schema;
     }
 
     public int currentVersion() throws SQLException {
-        ResultSet rs = stmt.executeQuery(buildVersionQuery());
+        ResultSet rs = statement.executeQuery(buildVersionQuery());
         rs.next();
         int version = rs.getInt("version");
         System.out.println("Current version :" + version);
         return version;
-
     }
 
     protected String buildVersionQuery() {
-        return String.format("SELECT * from %sschema_version",
-                schema == null ? "" : schema.concat(".")
-        );
+       String tableName = "schema_version";
+       if (null != schema) tableName = schema + "." + tableName;
+
+       return String.format("SELECT * from " + tableName);
     }
 
     public void runScript(SchemaUpdateScript script) throws SQLException {
@@ -43,6 +43,5 @@ public class SchemaUpdaterImpl implements SchemaUpdater {
 
     private void updateVersionTo(int newVersion) throws SQLException {
         task.createTransaction().addText("UPDATE schema_version set version='" + newVersion + "'");
-
     }
 }

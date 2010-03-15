@@ -10,5 +10,5 @@ import java.io.*;
  */
 public interface SchemaScriptManager {
 
-   List scriptsWithVersionAbove(int currentVersion) throws IOException;
+   List<SchemaUpdateScript> scriptsWithVersionAbove(int currentVersion) throws IOException;
 }
