@@ -1,61 +1,54 @@
 package com.cyrusinnovation.common.build;
 
-import org.jmock.Mock;
-import org.jmock.MockObjectTestCase;
+import junit.framework.TestCase;
+import org.mockito.InOrder;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.*;
+
+import static org.mockito.Mockito.*;
 
 /**
  * User: rex
  * Date: Feb 8, 2005
  * Time: 1:21:37 PM
  */
-public class SchemaMigratorTest extends MockObjectTestCase {
-    private Mock schemaUpdater;
-    private Mock schemaScriptManager;
-    private SchemaMigrator migrator;
+public class SchemaMigratorTest extends TestCase {
+   private SchemaUpdater schemaUpdater;
+   private SchemaScriptManager schemaScriptManager;
+   private SchemaMigrator migrator;
 
    @Override
    protected void setUp() throws Exception {
       super.setUp();
       schemaUpdater = mock(SchemaUpdater.class);
       schemaScriptManager = mock(SchemaScriptManager.class);
-      Mock sqlExecer = mock(AntSqlExecer.class);
-      migrator = new SchemaMigrator(
-            (AntSqlExecer) sqlExecer.proxy(),
-            (SchemaUpdater) schemaUpdater.proxy(),
-            (SchemaScriptManager) schemaScriptManager.proxy());
+
+      migrator = new SchemaMigrator(mock(AntSqlExecer.class), schemaUpdater, schemaScriptManager);
    }
 
    public void testAppliesEachSchemaScriptThatIsBeyondTheCurrentSchemaVersionAndUpdatesToTheNewVersion()
-            throws SQLException, IOException {
+         throws SQLException, IOException {
+      when(schemaUpdater.currentVersion()).thenReturn(17);
 
-        schemaUpdater.stubs().method("currentVersion").will(returnValue(17));
-        SchemaUpdateScript script18 = new SchemaUpdateScript(new File("18.sql"));
-        SchemaUpdateScript script19 = new SchemaUpdateScript(new File("19.sql"));
+      SchemaUpdateScript script18 = new SchemaUpdateScript(new File("18.sql"));
+      SchemaUpdateScript script19 = new SchemaUpdateScript(new File("19.sql"));
+      when(schemaScriptManager.scriptsWithVersionAbove(17)).thenReturn(Arrays.asList(script18, script19));
 
-        schemaScriptManager.stubs().method("scriptsWithVersionAbove").with(eq(17)).will(
-                returnValue(Arrays.asList(script18, script19)));
+      migrator.applyChanges();
 
-        schemaUpdater.expects(once()).method("runScript").with(eq(script18)).id("script 18");
-        schemaUpdater.expects(once()).method("runScript").with(eq(script19)).after("script 18").id(
-                "script 19");
-
-        migrator.applyChanges();
-        assertTrue(migrator.hasChanges());
-    }
+      InOrder order = inOrder(schemaUpdater);
+      order.verify(schemaUpdater).runScript(script18);
+      order.verify(schemaUpdater).runScript(script19);
+      assertTrue(migrator.hasChanges());
+   }
 
    public void testDoesNothingIfThereAreNoNewScriptsFound() throws SQLException, IOException {
-        schemaUpdater.stubs().method("currentVersion").will(returnValue(17));
+      when(schemaUpdater.currentVersion()).thenReturn(17);
+      when(schemaScriptManager.scriptsWithVersionAbove(17)).thenReturn(new ArrayList<SchemaUpdateScript>());
 
-        schemaScriptManager.stubs().method("scriptsWithVersionAbove").with(eq(17)).will(
-                returnValue(new ArrayList()));
-
-        migrator.applyChanges();
-        assertFalse(migrator.hasChanges());
-    }
+      migrator.applyChanges();
+      assertFalse(migrator.hasChanges());
+   }
 }
