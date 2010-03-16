@@ -32,8 +32,8 @@ public class SchemaMigratorTest extends TestCase {
          throws SQLException, IOException {
       when(schemaUpdater.currentVersion()).thenReturn(17);
 
-      SchemaUpdateScript script18 = new SchemaUpdateScript(new File("18.sql"));
-      SchemaUpdateScript script19 = new SchemaUpdateScript(new File("19.sql"));
+      SchemaUpdateScript script18 = SchemaUpdateScript.scriptFor(new File("18.sql"));
+      SchemaUpdateScript script19 = SchemaUpdateScript.scriptFor(new File("19.sql"));
       when(schemaScriptManager.scriptsWithVersionAbove(17)).thenReturn(Arrays.asList(script18, script19));
 
       migrator.applyChanges();

@@ -1,6 +1,7 @@
 package com.cyrusinnovation.common.build;
 
-import java.io.*;
+import java.io.File;
+import java.util.regex.*;
 
 /**
  * User: rex
@@ -8,16 +9,41 @@ import java.io.*;
  * Time: 1:30:46 PM
  */
 public class SchemaUpdateScript implements Comparable {
-   private int version;
+   static final Pattern FILENAME_PATTERN = Pattern.compile("(\\d+)(-(.+))?\\.sql");
    private File srcFile;
+   private int version;
+   private String scriptGroup;
 
-   public SchemaUpdateScript(File srcFile) {
+   public static SchemaUpdateScript scriptFor(File file) {
+      Matcher matcher = FILENAME_PATTERN.matcher(file.getName());
+      matcher.matches();
+      int version = Integer.parseInt(matcher.group(1));
+
+      String scriptGroup = null;
+      if (matcher.groupCount() > 1) scriptGroup = matcher.group(3);
+
+      return new SchemaUpdateScript(file, version, scriptGroup);
+   }
+
+   private SchemaUpdateScript(File srcFile, int version, String scriptGroup) {
       this.srcFile = srcFile;
-      this.version = Integer.parseInt(srcFile.getName().split("\\.")[0]);
+      this.version = version;
+      this.scriptGroup = scriptGroup;
    }
 
    public int version(){
       return version;
+   }
+
+   public File getSrcFile() {
+      return srcFile;
+   }
+
+   @SuppressWarnings({"SimplifiableIfStatement"})
+   public boolean isIn(String scriptGroup) {
+      if (this.scriptGroup == null) return true;
+
+      return scriptGroup.equals(this.scriptGroup);
    }
 
    public boolean equals(Object o) {
@@ -39,9 +65,5 @@ public class SchemaUpdateScript implements Comparable {
 
    public String toString(){
       return "File: "+srcFile.toString();
-   }
-
-   public File getSrcFile() {
-      return srcFile;
    }
 }

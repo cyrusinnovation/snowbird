@@ -1,7 +1,9 @@
 package com.cyrusinnovation.common.build;
 
-import java.util.*;
 import java.io.*;
+import java.util.*;
+
+import static com.cyrusinnovation.common.build.SchemaUpdateScript.*;
 
 /**
  * User: rex
@@ -10,39 +12,25 @@ import java.io.*;
  */
 public class SchemaScriptManagerImpl implements SchemaScriptManager {
    private File scriptFolder;
+   private String scriptGroup;
 
-   public SchemaScriptManagerImpl(File scriptFolderName) {
+   public SchemaScriptManagerImpl(File scriptFolderName, String scriptGroup) {
       this.scriptFolder = scriptFolderName;
+      this.scriptGroup = scriptGroup;
    }
 
    public List<SchemaUpdateScript> scriptsWithVersionAbove(int currentVersion) throws IOException {
-      File[] files = findAllSqlFiles();
+      File[] sqlFiles = findAllSqlFiles();
 
-      List<SchemaUpdateScript> allScripts = convertFilesToScriptObjects(files);
+      List<SchemaUpdateScript> allScripts = convertFilesToScriptObjects(sqlFiles);
 
-      removeScriptsLessThanOrEqualToCurrentVersion(allScripts, currentVersion);
+      ArrayList<SchemaUpdateScript> scriptsInGroup = allScriptsInGroup(allScripts);
 
-      Collections.sort(allScripts);
+      removeScriptsLessThanOrEqualToCurrentVersion(scriptsInGroup, currentVersion);
 
-      return allScripts;
-   }
+      Collections.sort(scriptsInGroup);
 
-   private void removeScriptsLessThanOrEqualToCurrentVersion(List allScripts, int currentVersion) {
-      for (Iterator i = allScripts.iterator(); i.hasNext();) {
-         SchemaUpdateScript script = (SchemaUpdateScript) i.next();
-         if (script.version() <= currentVersion) i.remove();
-      }
-   }
-
-   private List<SchemaUpdateScript> convertFilesToScriptObjects(File[] files) {
-      List<SchemaUpdateScript> retVal = new ArrayList<SchemaUpdateScript>();
-
-      for (File file : files) {
-         SchemaUpdateScript script = new SchemaUpdateScript(file);
-         retVal.add(script);
-      }
-
-      return retVal;
+      return scriptsInGroup;
    }
 
    private File[] findAllSqlFiles() {
@@ -54,4 +42,30 @@ public class SchemaScriptManagerImpl implements SchemaScriptManager {
       });
    }
 
+   private List<SchemaUpdateScript> convertFilesToScriptObjects(File[] files) {
+      List<SchemaUpdateScript> retVal = new ArrayList<SchemaUpdateScript>();
+
+      for (File file : files) {
+         retVal.add(scriptFor(file));
+      }
+
+      return retVal;
+   }
+
+   private ArrayList<SchemaUpdateScript> allScriptsInGroup(List<SchemaUpdateScript> allScripts) {
+      ArrayList<SchemaUpdateScript> scriptsInGroup = new ArrayList<SchemaUpdateScript>();
+      for (SchemaUpdateScript script : allScripts) {
+         if (script.isIn(scriptGroup)) {
+            scriptsInGroup.add(script);
+         }
+      }
+      return scriptsInGroup;
+   }
+
+   private void removeScriptsLessThanOrEqualToCurrentVersion(List allScripts, int currentVersion) {
+      for (Iterator i = allScripts.iterator(); i.hasNext();) {
+         SchemaUpdateScript script = (SchemaUpdateScript) i.next();
+         if (script.version() <= currentVersion) i.remove();
+      }
+   }
 }
