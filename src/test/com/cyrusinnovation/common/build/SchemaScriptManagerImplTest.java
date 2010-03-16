@@ -10,28 +10,64 @@ import java.util.*;
  * Date: Feb 8, 2005
  * Time: 4:49:34 PM
  */
+@SuppressWarnings({"ResultOfMethodCallIgnored"})
 public class SchemaScriptManagerImplTest extends TestCase {
    private static final String TEST_SCRIPT_FOLDER_NAME = "testscripts";
+   private static final int CURRENT_SCHEMA_VERSION = 5;
+   private File testScriptFolder;
+   private SchemaScriptManagerImpl scriptManager;
 
-   public void testFindsAllOfTheScriptsFromTheScriptDirectoryWithFileNamesGreaterThanTheVersionPassed() throws IOException {
-      File scriptFolder = new File(TEST_SCRIPT_FOLDER_NAME);
-      SchemaScriptManagerImpl scriptManager = new SchemaScriptManagerImpl(scriptFolder);
+   @Override
+   protected void setUp() throws Exception {
+      super.setUp();
 
-      List<SchemaUpdateScript> expectedScripts = scriptsMatching(scriptFolder, Arrays.asList("6.sql", "8.sql"));
-      assertEquals(expectedScripts, scriptManager.scriptsWithVersionAbove(5));
+      createScriptFolder();
+
+      scriptManager = new SchemaScriptManagerImpl(testScriptFolder);
    }
 
-   private List<SchemaUpdateScript> scriptsMatching(File scriptFolder, final List<String> filenames) {
-      File[] files = scriptFolder.listFiles(new FilenameFilter() {
-         public boolean accept(File dir, String name) {
-            return filenames.contains(name);
-         }
-      });
+   public void testFindsAllOfTheScriptsFromTheScriptDirectoryWithFileNamesGreaterThanTheVersionPassed() throws IOException {
+      withMigrationScripts("4.sql", "5.sql", "6.sql", "8.sql");
 
-      List<SchemaUpdateScript> updateScripts = new ArrayList<SchemaUpdateScript>();
-      for (File file : files) {
-         updateScripts.add(new SchemaUpdateScript(file));
+      assertScriptsWithVersionAboveCurrent("6.sql", "8.sql");
+   }
+
+   public void testShouldNotIncludeNonSqlFilesInScriptList() throws IOException {
+      withMigrationScripts("6.sql", "7.not_sql", "8.sql");
+
+      assertScriptsWithVersionAboveCurrent("6.sql", "8.sql");
+   }
+
+   private void assertScriptsWithVersionAboveCurrent(String... filenames) throws IOException {
+      List<String> expectedFilenames = Arrays.asList(filenames);
+
+      List<SchemaUpdateScript> scripts = scriptManager.scriptsWithVersionAbove(CURRENT_SCHEMA_VERSION);
+      ArrayList<String> actualFilenames = new ArrayList<String>();
+      for (SchemaUpdateScript schemaUpdateScript : scripts) {
+         actualFilenames.add(schemaUpdateScript.getSrcFile().getName());
       }
-      return updateScripts;
+
+      assertEquals(expectedFilenames, actualFilenames);
+   }
+
+   @Override
+   protected void tearDown() throws Exception {
+      for (File file : testScriptFolder.listFiles()) {
+         file.delete();
+      }
+      testScriptFolder.delete();
+      super.tearDown();
+   }
+
+   private void createScriptFolder() {
+      testScriptFolder = new File(TEST_SCRIPT_FOLDER_NAME);
+      if (!testScriptFolder.exists()) testScriptFolder.mkdir();
+   }
+
+   private void withMigrationScripts(String... scriptNames) throws IOException {
+      for (String scriptName : scriptNames) {
+         File script = new File(testScriptFolder, scriptName);
+         if (!script.exists()) script.createNewFile();
+      }
    }
 }
