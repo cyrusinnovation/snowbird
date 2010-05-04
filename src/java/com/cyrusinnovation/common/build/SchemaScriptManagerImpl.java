@@ -34,7 +34,6 @@ public class SchemaScriptManagerImpl implements SchemaScriptManager {
    }
 
    private File[] findAllSqlFiles() {
-      System.out.println(scriptFolder.getAbsolutePath());
       return scriptFolder.listFiles(new FilenameFilter(){
          public boolean accept(File dir, String name) {
             return name.endsWith(".sql");
