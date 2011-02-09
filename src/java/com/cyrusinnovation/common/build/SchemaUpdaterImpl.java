@@ -9,12 +9,12 @@ import java.sql.Statement;
  * Date: Feb 8, 2005
  * Time: 3:04:31 PM
  */
-public class SchemaUpdaterImpl implements SchemaUpdater {
+public class SchemaUpdaterImpl {
     private Statement statement;
-    private AntSqlExecer task;
+    private AntSqlExecerImpl task;
     private String schema;
 
-   public SchemaUpdaterImpl(Statement statement, AntSqlExecer task, String schema) {
+    public SchemaUpdaterImpl(Statement statement, AntSqlExecerImpl task, String schema) {
         this.statement = statement;
         this.task = task;
         this.schema = schema;
@@ -29,10 +29,10 @@ public class SchemaUpdaterImpl implements SchemaUpdater {
     }
 
     protected String buildVersionQuery() {
-       String tableName = "schema_version";
-       if (null != schema) tableName = schema + "." + tableName;
+        String tableName = "schema_version";
+        if (null != schema) tableName = schema + "." + tableName;
 
-       return String.format("SELECT * from " + tableName);
+        return String.format("SELECT * from " + tableName);
     }
 
     public void runScript(SchemaUpdateScript script) throws SQLException {

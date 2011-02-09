@@ -4,7 +4,7 @@ import org.apache.tools.ant.Project;
 import org.apache.tools.ant.Target;
 import org.apache.tools.ant.taskdefs.SQLExec;
 
-public final class AntSqlExecerImpl extends SQLExec implements AntSqlExecer {
+public class AntSqlExecerImpl extends SQLExec {
     public AntSqlExecerImpl() {
         Project project = new Project();
         setProject(project);
